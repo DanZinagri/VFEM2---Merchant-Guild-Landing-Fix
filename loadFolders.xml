@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <loadFolders>
+	<v1.6>
+		<li>/</li>
+		<li IfModActiveAll="SmashPhil.VehicleFramework,OskarPotocki.VFE.Medieval2">1.6</li>
+	</v1.6>
 	<v1.7>
 		<li>/</li>
 		<!-- The DLL references both mods' types, so it only loads when both are active. -->

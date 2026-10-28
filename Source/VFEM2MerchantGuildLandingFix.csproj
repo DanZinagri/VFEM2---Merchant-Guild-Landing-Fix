@@ -1,47 +1,59 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- One project, two builds:
+       net48   -> 1.6/Assemblies, compiled against the 1.6 reference assemblies (Krafs copy).
+       net10.0 -> 1.7/Assemblies, compiled against the 1.7 game root (Waylith / UnityStubs). -->
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
     <AssemblyName>VFEM2MerchantGuildLandingFix</AssemblyName>
     <RootNamespace>VFEM2MerchantGuildLandingFix</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <OutputPath>..\1.7\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- AppendTargetFrameworkToOutputPath=false also flattens obj\, so give each target its own
+         intermediate folder or the parallel net48/net10 builds overwrite each other. -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(TargetFramework)\</IntermediateOutputPath>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <DebugType>none</DebugType>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RimWorld16Ref>C:\Users\DanZinagri\Documents\RimWorldModding\RimWorld-1.6-Ref</RimWorld16Ref>
+    <RimWorld17Root>E:\SteamLibrary\steamapps\common\RimWorld</RimWorld17Root>
+    <WorkshopRoot>E:\SteamLibrary\steamapps\workshop\content\294100</WorkshopRoot>
+    <HarmonyRoot>$(WorkshopRoot)\2009463077</HarmonyRoot>
+    <VehiclesRoot>$(WorkshopRoot)\3014915404</VehiclesRoot>
+    <MedievalRoot>$(WorkshopRoot)\3444347874</MedievalRoot>
+    <VEFRoot>$(WorkshopRoot)\2023507013</VEFRoot>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>E:\SteamLibrary\steamapps\workshop\content\294100\2009463077\1.7\Assemblies\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>E:\SteamLibrary\steamapps\common\RimWorld\Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityStubs">
-      <HintPath>E:\SteamLibrary\steamapps\common\RimWorld\UnityStubs.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- Vehicle Framework and VFE Medieval 2 have no 1.7 builds yet (2026-10-13): these three point at their 1.6 DLLs.
-         Repoint to 1.7\Assemblies and rebuild once they ship. VEF (below) is on its 1.7 build. -->
-    <Reference Include="Vehicles">
-      <HintPath>E:\SteamLibrary\steamapps\workshop\content\294100\3014915404\1.6\Assemblies\Vehicles.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="SmashTools">
-      <HintPath>E:\SteamLibrary\steamapps\workshop\content\294100\3014915404\1.6\Assemblies\SmashTools.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="VFEMedieval">
-      <HintPath>E:\SteamLibrary\steamapps\workshop\content\294100\3444347874\1.6\Assemblies\VFEMedieval.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="VEF">
-      <HintPath>E:\SteamLibrary\steamapps\workshop\content\294100\2023507013\1.7\Assemblies\VEF.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <OutputPath>..\1.6\Assemblies\</OutputPath>
+    <FrameworkPathOverride>$(RimWorld16Ref)</FrameworkPathOverride>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <OutputPath>..\1.7\Assemblies\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="Assembly-CSharp"><HintPath>$(RimWorld16Ref)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(RimWorld16Ref)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="netstandard"><HintPath>$(RimWorld16Ref)\netstandard.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(HarmonyRoot)\1.6\Assemblies\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VEF"><HintPath>$(VEFRoot)\1.6\Assemblies\VEF.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <Reference Include="Assembly-CSharp"><HintPath>$(RimWorld17Root)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityStubs"><HintPath>$(RimWorld17Root)\UnityStubs.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(HarmonyRoot)\1.7\Assemblies\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VEF"><HintPath>$(VEFRoot)\1.7\Assemblies\VEF.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+  <!-- Vehicle Framework and VFE Medieval 2 have no 1.7 builds yet (2026-10-13, still true 2026-10-28), so both
+       targets compile against their 1.6 DLLs. Give the net10.0 build their 1.7\Assemblies once they ship. -->
+  <ItemGroup>
+    <Reference Include="Vehicles"><HintPath>$(VehiclesRoot)\1.6\Assemblies\Vehicles.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SmashTools"><HintPath>$(VehiclesRoot)\1.6\Assemblies\SmashTools.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="VFEMedieval"><HintPath>$(MedievalRoot)\1.6\Assemblies\VFEMedieval.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
 </Project>
